@@ -20,7 +20,7 @@ class UserService(private val userRepository: UserRepository, private val userMa
 
     fun getUserById(id: Long): UserResponseDTO {
         val user = userRepository.findById(id).orElseThrow {
-            EntityNotFoundException("Id $id not found")
+            EntityNotFoundException("User Id '$id' not found")
         }
         return userMapper.toResponseDTO(user)
     }
@@ -33,7 +33,7 @@ class UserService(private val userRepository: UserRepository, private val userMa
 
     fun saveUser(userAuthDTO: UserAuthDTO): UserResponseDTO {
         if (userRepository.findByUsername(userAuthDTO.username) != null) {
-            throw EntityExistsException("Username ${userAuthDTO.username} already exists")
+            throw EntityExistsException("Username '${userAuthDTO.username}' already exists")
         }
 
         val user = User(
@@ -49,7 +49,7 @@ class UserService(private val userRepository: UserRepository, private val userMa
 
     fun deleteUserById(id: Long) {
         val user = userRepository.findById(id).orElseThrow {
-            EntityNotFoundException("Id $id not found")
+            EntityNotFoundException("Id '$id' not found")
         }
         userRepository.delete(user)
     }

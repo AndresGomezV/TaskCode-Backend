@@ -19,7 +19,7 @@ class UserMapper {
 
     fun toEntity(userAuthDTO: UserAuthDTO): User {
         return User(
-            id = null, //Se pone null porque id es generado automáticamente por la bd
+            id = null, //null porque id es generado automáticamente por la bd
             username = userAuthDTO.username,
             password = userAuthDTO.password,
             role = Role.USER
