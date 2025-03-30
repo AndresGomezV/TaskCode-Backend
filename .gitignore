@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Archivos generados por Spring Boot
+application.properties
