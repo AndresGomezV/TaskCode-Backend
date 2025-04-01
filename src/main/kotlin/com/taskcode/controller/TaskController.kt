@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 import com.taskcode.repository.UserRepository
+import org.apache.coyote.Response
 
 @RestController
 @RequestMapping("/tasks")
@@ -18,6 +19,15 @@ class TaskController(private val taskService: TaskService, private val userRepos
     @PreAuthorize("isAuthenticated()")
     fun getTaskById(@PathVariable id: Long): ResponseEntity<Task> {
         return ResponseEntity.ok(taskService.getTaskById(id))
+    }
+
+    @GetMapping("/user/{userId}")
+    @PreAuthorize("isAuthenticated()")
+    fun getUserTasks(@PathVariable userId:Long, authentication: Authentication): ResponseEntity<List<Task>> {
+        val currentUser = userRepository.findByUsername(authentication.name) ?: throw EntityNotFoundException("User not found")
+
+        val tasks = taskService.getTasksByUser(userId, currentUser)
+        return ResponseEntity.ok(tasks)
     }
 
     @PostMapping

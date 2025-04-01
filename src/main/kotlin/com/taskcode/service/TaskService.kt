@@ -6,11 +6,19 @@ import com.taskcode.model.User
 import com.taskcode.repository.TaskRepository
 import com.taskcode.repository.UserRepository
 import jakarta.persistence.EntityNotFoundException
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 
 @Service
 class TaskService(private val taskRepository: TaskRepository, private val userRepository: UserRepository) {
+
+    fun getTasksByUser(userId: Long, currentUser: User): List<Task> {
+
+        if (currentUser.role != Role.ADMIN && currentUser.id != userId) {
+            throw IllegalAccessException("You do not have permission to view these tasks")
+        }
+
+        return taskRepository.findByUserId(userId)
+    }
 
     fun getTaskById(id: Long) : Task? {
         return taskRepository.findById(id).orElseThrow {
