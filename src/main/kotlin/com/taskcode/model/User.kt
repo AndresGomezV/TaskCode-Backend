@@ -1,6 +1,8 @@
 package com.taskcode.model
 
 import jakarta.persistence.*
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.userdetails.UserDetails
 
 @Entity
 @Table(name = "users")
@@ -23,6 +25,11 @@ data class User(
     var tasks: MutableList<Task> = mutableListOf()
 )
 
-enum class Role {
-    USER, ADMIN
+enum class Role : GrantedAuthority {
+    USER,
+    ADMIN;
+
+    override fun getAuthority(): String {
+        return "ROLE_$name"
+    }
 }

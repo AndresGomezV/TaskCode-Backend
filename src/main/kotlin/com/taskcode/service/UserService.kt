@@ -41,7 +41,7 @@ class UserService(private val userRepository: UserRepository, private val userMa
 
             username = userAuthDTO.username,
             password = passwordEncoder.encode(userAuthDTO.password),
-            role = Role.USER
+            role = userAuthDTO.role ?: Role.USER
         )
 
         val savedUser = userRepository.save(user)
@@ -63,7 +63,8 @@ class UserService(private val userRepository: UserRepository, private val userMa
             throw IllegalArgumentException("Invalid password")
         }
 
-        return jwtUtil.generateToken(user.username)
+        val role = user.role.name
+        return jwtUtil.generateToken(user.username, role)
     }
 
     fun updateUserRole(id: Long, newRole: Role, currentUser: User): UserResponseDTO {

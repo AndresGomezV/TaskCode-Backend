@@ -1,13 +1,13 @@
 package com.taskcode.jwt
 
-import com.taskcode.jwt.JwtUtil
+import com.taskcode.repository.UserRepository
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
@@ -17,7 +17,9 @@ import java.io.IOException
 @Component
 class JwtAuthenticationFilter(
     private val jwtUtil: JwtUtil,
+    private val userRepository: UserRepository,
     private val userDetailsService: UserDetailsService
+
 ) : OncePerRequestFilter() {
 
     @Throws(ServletException::class, IOException::class)
@@ -26,24 +28,25 @@ class JwtAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        // Extraer el token del header Authorization
         val authHeader = request.getHeader("Authorization")
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response)
             return
         }
 
-        val token = authHeader.substring(7) // Removemos "Bearer "
+        val token = authHeader.substring(7)
         val username = jwtUtil.extractUsername(token)
 
-        // Validar el token y configurar la autenticación en el contexto de seguridad
-        if (username != null && SecurityContextHolder.getContext().authentication == null) {
-            val userDetails: UserDetails = userDetailsService.loadUserByUsername(username)
+        if (SecurityContextHolder.getContext().authentication == null) {
+            val userDetails = userDetailsService.loadUserByUsername(username)
 
             if (jwtUtil.isTokenValid(token, userDetails)) {
-                val authToken = UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.authorities
-                )
+
+                val role = jwtUtil.extractRole(token)
+
+                val authorities = listOf(SimpleGrantedAuthority("ROLE_$role"))
+
+                val authToken = UsernamePasswordAuthenticationToken(userDetails, null, authorities)
                 authToken.details = WebAuthenticationDetailsSource().buildDetails(request)
                 SecurityContextHolder.getContext().authentication = authToken
             }
