@@ -1,12 +1,16 @@
 package com.taskcode.service
 
+import com.taskcode.model.Role
 import com.taskcode.model.Task
+import com.taskcode.model.User
 import com.taskcode.repository.TaskRepository
+import com.taskcode.repository.UserRepository
 import jakarta.persistence.EntityNotFoundException
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 
 @Service
-class TaskService(private val taskRepository: TaskRepository) {
+class TaskService(private val taskRepository: TaskRepository, private val userRepository: UserRepository) {
 
     fun getTaskById(id: Long) : Task? {
         return taskRepository.findById(id).orElseThrow {
@@ -14,13 +18,25 @@ class TaskService(private val taskRepository: TaskRepository) {
         }
     }
 
-    fun saveTask(task: Task): Task {
-        return taskRepository.save(task)
+    fun saveTask(task: Task, currentUser: User): Task {
+
+        val newTask = Task(
+            title = task.title,
+            description = task.description,
+            duration = task.duration,
+            user = currentUser,
+            status = task.status
+        )
+        return taskRepository.save(newTask)
     }
 
-    fun deleteTask(id: Long) {
-        if (!taskRepository.existsById(id)) {
-            throw EntityNotFoundException("Task Id '$id' not found")
+    fun deleteTask(id: Long,  currentUser: User) {
+        val task = taskRepository.findById(id).orElseThrow {
+            EntityNotFoundException("Task Id '$id' not found")
+        }
+
+        if (task.user != currentUser && currentUser.role != Role.ADMIN) {
+            throw IllegalAccessException("You do not have permission to delete this task")
         }
         taskRepository.deleteById(id)
     }

@@ -9,6 +9,7 @@ import com.taskcode.model.User
 import com.taskcode.repository.UserRepository
 import jakarta.persistence.EntityExistsException
 import jakarta.persistence.EntityNotFoundException
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -37,6 +38,7 @@ class UserService(private val userRepository: UserRepository, private val userMa
         }
 
         val user = User(
+
             username = userAuthDTO.username,
             password = passwordEncoder.encode(userAuthDTO.password),
             role = Role.USER
@@ -65,6 +67,7 @@ class UserService(private val userRepository: UserRepository, private val userMa
     }
 
     fun updateUserRole(id: Long, newRole: Role, currentUser: User): UserResponseDTO {
+
         if (currentUser.role != Role.ADMIN) {
             throw IllegalAccessException("Only admins can change user roles")
         }

@@ -17,7 +17,10 @@ data class User(
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    var role: Role = Role.USER
+    var role: Role = Role.USER,
+
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var tasks: MutableList<Task> = mutableListOf()
 )
 
 enum class Role {

@@ -22,14 +22,14 @@ data class Task (
     @Column(nullable = false)
     val creationDate: LocalDateTime = LocalDateTime.now(),
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     val user: User,
 
     @Enumerated(EnumType.STRING)
-    val status: taskStatus = taskStatus.PENDING
+    var status: TaskStatus = TaskStatus.PENDING
     )
 
-enum class taskStatus {
+enum class TaskStatus {
     PENDING, ACCEPTED, REJECTED
 }
