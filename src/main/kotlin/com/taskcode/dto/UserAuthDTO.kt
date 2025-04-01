@@ -1,6 +1,9 @@
 package com.taskcode.dto
 
+import com.taskcode.model.Role
+
 data class UserAuthDTO(
-    val username: String,
-    val password: String
+    var username: String,
+    var password: String,
+    var role: Role
 )

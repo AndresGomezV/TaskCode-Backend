@@ -31,11 +31,14 @@ class SecurityConfig(
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .csrf { it.disable() }
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests {
-                it.requestMatchers("/api/auth/**").permitAll()
+                it.requestMatchers("/users/register", "/users/login").permitAll()
+                it.requestMatchers("/users/{id}", "/users/username/{username}", "/tasks/{id}", "/tasks").authenticated()
+                it.requestMatchers("/users/*/role", "/users/{id}").hasAuthority("ADMIN")
                 it.anyRequest().authenticated()
             }
-            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()

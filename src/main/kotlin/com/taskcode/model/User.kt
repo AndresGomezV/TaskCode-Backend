@@ -10,14 +10,14 @@ data class User(
     val id: Long? = null,
 
     @Column (nullable = false, unique = true)
-    val username: String,
+    var username: String,
 
     @Column(nullable = false)
     var password: String,
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    var role: Role
+    var role: Role = Role.USER
 )
 
 enum class Role {

@@ -43,7 +43,6 @@ class UserService(private val userRepository: UserRepository, private val userMa
         )
 
         val savedUser = userRepository.save(user)
-
         return userMapper.toResponseDTO(savedUser)
     }
 
@@ -64,4 +63,19 @@ class UserService(private val userRepository: UserRepository, private val userMa
 
         return jwtUtil.generateToken(user.username)
     }
+
+    fun updateUserRole(id: Long, newRole: Role, currentUser: User): UserResponseDTO {
+        if (currentUser.role != Role.ADMIN) {
+            throw IllegalAccessException("Only admins can change user roles")
+        }
+
+        val user = userRepository.findById(id).orElseThrow {
+            EntityNotFoundException("User Id '$id' not found")
+        }
+
+        user.role = newRole
+        val updatedUser = userRepository.save(user)
+        return userMapper.toResponseDTO(updatedUser)
+    }
+
 }

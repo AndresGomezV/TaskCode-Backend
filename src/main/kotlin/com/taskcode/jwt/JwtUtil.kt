@@ -3,6 +3,7 @@ package com.taskcode.jwt
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
@@ -19,7 +20,7 @@ class JwtUtil {
             .setSubject(username)
             .setIssuedAt(Date(System.currentTimeMillis()))
             .setExpiration(Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 horas
-            .signWith(SignatureAlgorithm.HS256, secretKey)
+            .signWith(Keys.hmacShaKeyFor(secretKey.toByteArray()), SignatureAlgorithm.HS256)
             .compact()
     }
 
@@ -33,8 +34,9 @@ class JwtUtil {
     }
 
     private fun extractAllClaims(token: String): Claims {
-        return Jwts.parser()
-            .setSigningKey(secretKey)
+        return Jwts.parserBuilder()
+            .setSigningKey(Keys.hmacShaKeyFor(secretKey.toByteArray()))
+            .build()
             .parseClaimsJws(token)
             .body
     }
