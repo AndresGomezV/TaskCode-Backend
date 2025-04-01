@@ -1,6 +1,7 @@
 package com.taskcode.controller
 
 import com.taskcode.model.Task
+import com.taskcode.model.TaskStatus
 import com.taskcode.service.TaskService
 import jakarta.persistence.EntityNotFoundException
 import org.springframework.http.HttpStatus
@@ -21,12 +22,15 @@ class TaskController(private val taskService: TaskService, private val userRepos
         return ResponseEntity.ok(taskService.getTaskById(id))
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping
     @PreAuthorize("isAuthenticated()")
-    fun getUserTasks(@PathVariable userId:Long, authentication: Authentication): ResponseEntity<List<Task>> {
+    fun getTasks(@RequestParam(required = false) userId: Long?,
+                 @RequestParam(required = false) status: TaskStatus?,
+                 authentication: Authentication
+    ): ResponseEntity<List<Task>> {
         val currentUser = userRepository.findByUsername(authentication.name) ?: throw EntityNotFoundException("User not found")
 
-        val tasks = taskService.getTasksByUser(userId, currentUser)
+        val tasks = taskService.getTasks(userId, currentUser, status)
         return ResponseEntity.ok(tasks)
     }
 

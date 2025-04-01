@@ -8,5 +8,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface TaskRepository : JpaRepository<Task, Long> {
     fun findByUserId(userId: Long): List<Task>
-    fun findByUserIdAndStatus(userId: Long, taskStatus: TaskStatus): List<Task>
+    fun findByStatus(status: TaskStatus): List<Task>
+    fun findByUserIdAndStatus(userId: Long, status: TaskStatus): List<Task>
 }

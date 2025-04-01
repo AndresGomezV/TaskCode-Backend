@@ -2,6 +2,7 @@ package com.taskcode.service
 
 import com.taskcode.model.Role
 import com.taskcode.model.Task
+import com.taskcode.model.TaskStatus
 import com.taskcode.model.User
 import com.taskcode.repository.TaskRepository
 import com.taskcode.repository.UserRepository
@@ -11,13 +12,18 @@ import org.springframework.stereotype.Service
 @Service
 class TaskService(private val taskRepository: TaskRepository, private val userRepository: UserRepository) {
 
-    fun getTasksByUser(userId: Long, currentUser: User): List<Task> {
+    fun getTasks(userId: Long?, currentUser: User, status: TaskStatus?): List<Task> {
 
-        if (currentUser.role != Role.ADMIN && currentUser.id != userId) {
+        if (userId != null && currentUser.role != Role.ADMIN && currentUser.id != userId) {
             throw IllegalAccessException("You do not have permission to view these tasks")
         }
-
-        return taskRepository.findByUserId(userId)
+        return when {
+            userId != null && status != null -> taskRepository.findByUserIdAndStatus(userId, status)
+            userId != null -> taskRepository.findByUserId(userId)
+            status != null -> taskRepository.findByStatus(status)
+            currentUser.role == Role.ADMIN -> taskRepository.findAll()
+            else -> taskRepository.findByUserId(currentUser.id!!)
+            }
     }
 
     fun getTaskById(id: Long) : Task? {
