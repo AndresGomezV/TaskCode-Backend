@@ -17,6 +17,7 @@ class JwtUtil {
     private lateinit var secretKey: String
 
     fun generateToken(username: String, role: String): String {
+
         return Jwts.builder()
             .setSubject(username)
             .claim("role", role)

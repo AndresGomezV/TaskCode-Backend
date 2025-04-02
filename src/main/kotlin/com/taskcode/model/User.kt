@@ -1,5 +1,6 @@
 package com.taskcode.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -22,9 +23,9 @@ data class User(
     var role: Role = Role.USER,
 
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @JsonIgnore
     var tasks: MutableList<Task> = mutableListOf()
 )
-
 enum class Role : GrantedAuthority {
     USER,
     ADMIN;

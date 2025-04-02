@@ -51,11 +51,17 @@ class UserController(
     }
 
     @PutMapping("/{id}/role")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    fun updateUserRole(@PathVariable id: Long, @RequestBody role: Role, authentication: Authentication): ResponseEntity<UserResponseDTO> {
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    fun updateUserRole(@PathVariable id: Long, @RequestBody body: Map<String, String>, authentication: Authentication): ResponseEntity<UserResponseDTO> {
         val currentUser = userRepository.findByUsername(authentication.name) ?: throw EntityNotFoundException("User not found")
 
-        return ResponseEntity.ok(userService.updateUserRole(id, role, currentUser))
+        val roleEnum = Role.valueOf(body["role"]?.uppercase() ?: throw IllegalArgumentException("Invalid role"))
+
+        if (currentUser.id == id && roleEnum == Role.USER) {
+            throw IllegalArgumentException("Admins cannot change their own role to USER")
+        }
+
+        return ResponseEntity.ok(userService.updateUserRole(id, roleEnum, currentUser))
     }
 }
 

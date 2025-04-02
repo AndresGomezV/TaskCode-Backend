@@ -1,5 +1,6 @@
 package com.taskcode.model
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -23,8 +24,8 @@ data class Task (
     val creationDate: LocalDateTime = LocalDateTime.now(),
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    val user: User,
+    @JoinColumn(name = "user_id")
+    val user: User? = null,
 
     @Enumerated(EnumType.STRING)
     var status: TaskStatus = TaskStatus.PENDING

@@ -22,7 +22,7 @@ class UserMapper {
             id = null, //null porque id es generado automáticamente por la bd
             username = userAuthDTO.username,
             password = userAuthDTO.password,
-            role = Role.USER
+            role = userAuthDTO.role ?: Role.USER
         )
     }
 }
