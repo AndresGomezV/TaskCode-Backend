@@ -1,6 +1,5 @@
-package com.taskcode.jwt
+package com.taskcode.security
 
-import com.taskcode.model.Role
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm

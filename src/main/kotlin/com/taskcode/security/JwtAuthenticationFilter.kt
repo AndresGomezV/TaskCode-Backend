@@ -1,4 +1,4 @@
-package com.taskcode.jwt
+package com.taskcode.security
 
 import com.taskcode.repository.UserRepository
 import jakarta.servlet.FilterChain
