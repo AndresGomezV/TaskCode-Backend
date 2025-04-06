@@ -30,12 +30,13 @@ class SecurityConfig(
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
+            .cors { }
             .csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests {
                 it.requestMatchers("/users/register", "/users/login").permitAll()
-                it.requestMatchers("/users/{id}", "/users/username/{username}", "/tasks/{id}", "/tasks").authenticated()
-                it.requestMatchers("/users/{id}/role", "/users/{id}").hasAuthority("ROLE_ADMIN")
+                it.requestMatchers("/users/{id}", "/users/username/{username}", "/tasks", "/tasks/{id}").authenticated()
+                it.requestMatchers("/users/{id}/role", "/users/{id}", "/tasks", "/users").hasAuthority("ROLE_ADMIN")
                 it.anyRequest().authenticated()
             }
 

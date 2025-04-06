@@ -18,6 +18,13 @@ class UserService(private val userRepository: UserRepository, private val userMa
 
     private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
 
+    fun getUsers(currentUser: User): List<UserResponseDTO> {
+        if (currentUser.role != Role.ADMIN) {
+            throw IllegalAccessException("Only admins can access the user list")
+        }
+        return userRepository.findAll().map { userMapper.toResponseDTO(it) }
+    }
+
     fun getUserById(id: Long): UserResponseDTO {
         val user = userRepository.findById(id).orElseThrow {
             EntityNotFoundException("User Id '$id' not found")

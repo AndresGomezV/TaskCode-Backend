@@ -20,6 +20,16 @@ class UserController(
     private val userRepository: UserRepository
 ) {
 
+    @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
+    fun getUsers(authentication: Authentication): ResponseEntity<List<UserResponseDTO>> {
+        val currentUser = userRepository.findByUsername(authentication.name) ?: throw EntityNotFoundException("User not found")
+
+        val users = userService.getUsers(currentUser)
+
+        return ResponseEntity.ok(users)
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     fun getUserById(@PathVariable id:Long): ResponseEntity<UserResponseDTO> {
@@ -44,6 +54,12 @@ class UserController(
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.saveUser(userAuthDTO))
     }
 
+    @GetMapping("/check-username")
+    fun checkUserExists(@RequestParam username: String): ResponseEntity<Boolean> {
+        val exists = userRepository.existsByUsername(username)
+        return ResponseEntity.ok(exists)
+    }
+
     @PostMapping("/login")
     fun authenticateUser(@RequestBody userAuthDTO: UserAuthDTO): ResponseEntity<Map<String, String>> {
     val token = userService.authenticateUser(userAuthDTO)
@@ -51,7 +67,7 @@ class UserController(
     }
 
     @PutMapping("/{id}/role")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     fun updateUserRole(@PathVariable id: Long, @RequestBody body: Map<String, String>, authentication: Authentication): ResponseEntity<UserResponseDTO> {
         val currentUser = userRepository.findByUsername(authentication.name) ?: throw EntityNotFoundException("User not found")
 

@@ -1,7 +1,6 @@
 package com.taskcode.controller
 
 import com.taskcode.dto.TaskDTO
-import com.taskcode.mapper.TaskMapper
 import com.taskcode.model.Task
 import com.taskcode.model.TaskStatus
 import com.taskcode.service.TaskService
@@ -18,7 +17,7 @@ import com.taskcode.repository.UserRepository
 class TaskController(
     private val taskService: TaskService,
     private val userRepository: UserRepository,
-    private val taskMapper: TaskMapper
+
 ) {
 
     @GetMapping("/{id}")
@@ -28,7 +27,7 @@ class TaskController(
     }
 
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     fun getTasks(@RequestParam(required = false) userId: Long?,
                  @RequestParam(required = false) status: TaskStatus?,
                  authentication: Authentication
@@ -36,6 +35,7 @@ class TaskController(
         val currentUser = userRepository.findByUsername(authentication.name) ?: throw EntityNotFoundException("User not found")
 
         val tasks = taskService.getTasks(userId, currentUser, status)
+
         return ResponseEntity.ok(tasks)
     }
 
@@ -52,7 +52,9 @@ class TaskController(
             status = task.status
         )
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.saveTask(newTask))
+        taskService.saveTask(newTask)
+
+        return ResponseEntity.status(HttpStatus.CREATED).build()
     }
 
     @DeleteMapping("/{id}")

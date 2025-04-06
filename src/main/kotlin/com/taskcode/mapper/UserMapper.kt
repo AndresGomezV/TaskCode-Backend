@@ -12,6 +12,7 @@ class UserMapper {
 
     fun toResponseDTO(user: User): UserResponseDTO {
         return UserResponseDTO(
+            id = user.id!!,
             username = user.username,
             role = user.role
         )
