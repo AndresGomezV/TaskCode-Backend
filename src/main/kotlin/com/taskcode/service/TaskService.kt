@@ -1,6 +1,7 @@
 package com.taskcode.service
 
 import com.taskcode.dto.TaskDTO
+import com.taskcode.dto.TaskUpdateDTO
 import com.taskcode.mapper.TaskMapper
 import com.taskcode.model.Role
 import com.taskcode.model.Task
@@ -35,9 +36,9 @@ class TaskService(private val taskRepository: TaskRepository, private val taskMa
         return taskMapper.toResponseDTO(task)
     }
 
-    fun saveTask(task: Task): Task {
+    fun saveTask(task: Task): TaskDTO {
+        return taskMapper.toResponseDTO(taskRepository.save(task))
 
-        return taskRepository.save(task)
     }
 
     fun deleteTask(id: Long,  currentUser: User) {
@@ -65,5 +66,23 @@ class TaskService(private val taskRepository: TaskRepository, private val taskMa
         val updatedTask = taskRepository.save(task)
         return taskMapper.toResponseDTO(updatedTask)
 
+    }
+
+    fun updateTask(taskId: Long, newTask: TaskUpdateDTO, currentUser: User): TaskDTO {
+        val task = taskRepository.findById(taskId).orElseThrow {
+            EntityNotFoundException("Task Id '$taskId' not found")
+        }
+
+        if (currentUser.role == Role.USER && task.user?.id != currentUser.id) {
+            throw IllegalAccessException("You are not authorized to modify this task")
+        }
+
+
+        task.title = newTask.title
+        task.description = newTask.description
+        task.duration = newTask.duration
+
+        taskRepository.save(task)
+        return taskMapper.toResponseDTO(task)
     }
 }

@@ -1,31 +1,34 @@
 package com.taskcode.model
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import jakarta.persistence.*
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "tasks")
-data class Task (
+data class Task(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    var id: Long? = null,
 
     @Column(nullable = false)
-    val title: String,
+    var title: String,
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    val description: String,
+    var description: String,
 
     @Column(nullable = false)
-    val duration: Int,
+    var duration: Int,
 
     @Column(nullable = false)
-    val creationDate: LocalDateTime = LocalDateTime.now(),
+    var creationDate: LocalDateTime = LocalDateTime.now(),
+
+    @Column(nullable = false)
+    var date: LocalDate = LocalDate.now(),
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    val user: User? = null,
+    var user: User? = null,
 
     @Enumerated(EnumType.STRING)
     var status: TaskStatus = TaskStatus.PENDING

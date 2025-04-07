@@ -14,6 +14,7 @@ class TaskMapper {
             description = task.description,
             duration = task.duration,
             creationDate = task.creationDate,
+            date = task.date,
             status = task.status,
             userId = task.user?.id
         )
