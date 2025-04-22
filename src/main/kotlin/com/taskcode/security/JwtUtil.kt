@@ -15,11 +15,12 @@ class JwtUtil {
     @Value("\${jwt.secret}")
     private lateinit var secretKey: String
 
-    fun generateToken(username: String, role: String): String {
+    fun generateToken(userId: Long, username: String, role: String): String {
 
         return Jwts.builder()
             .setSubject(username)
             .claim("role", role)
+            .claim("userId", userId)
             .setIssuedAt(Date(System.currentTimeMillis()))
             .setExpiration(Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 horas
             .signWith(Keys.hmacShaKeyFor(secretKey.toByteArray()), SignatureAlgorithm.HS256)

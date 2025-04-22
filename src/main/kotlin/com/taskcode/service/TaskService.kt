@@ -1,5 +1,7 @@
 package com.taskcode.service
 
+import com.taskcode.dto.NotificationDTO
+import com.taskcode.dto.NotificationType
 import com.taskcode.dto.TaskDTO
 import com.taskcode.dto.TaskUpdateDTO
 import com.taskcode.mapper.TaskMapper
@@ -13,7 +15,12 @@ import jakarta.persistence.EntityNotFoundException
 import org.springframework.stereotype.Service
 
 @Service
-class TaskService(private val taskRepository: TaskRepository, private val taskMapper: TaskMapper ) {
+class TaskService(
+    private val taskRepository: TaskRepository,
+    private val taskMapper: TaskMapper,
+    private val notificationPublisher: NotificationPublisher,
+    private val userRepository: UserRepository
+) {
 
     fun getTasks(userId: Long?, currentUser: User, status: TaskStatus?): List<TaskDTO> {
 
@@ -26,10 +33,10 @@ class TaskService(private val taskRepository: TaskRepository, private val taskMa
             status != null -> taskRepository.findByStatus(status)
             currentUser.role == Role.ADMIN -> taskRepository.findAll()
             else -> taskRepository.findByUserId(currentUser.id!!)
-            }.map { taskMapper.toResponseDTO(it) }
+        }.map { taskMapper.toResponseDTO(it) }
     }
 
-    fun getTaskById(id: Long) : TaskDTO {
+    fun getTaskById(id: Long): TaskDTO {
         val task = taskRepository.findById(id).orElseThrow {
             EntityNotFoundException("Task Id '$id' not found")
         }
@@ -37,11 +44,24 @@ class TaskService(private val taskRepository: TaskRepository, private val taskMa
     }
 
     fun saveTask(task: Task): TaskDTO {
-        return taskMapper.toResponseDTO(taskRepository.save(task))
+        val savedTask = taskRepository.save(task)
 
+        val adminUsers = userRepository.findAllByRole(Role.ADMIN)
+
+        adminUsers.forEach { admin ->
+            val notification = NotificationDTO(
+                userId = admin.id!!,
+                senderUsername = savedTask.user?.username!!,
+                taskId = savedTask.id!!,
+                taskTitle = savedTask.title,
+                notificationType = NotificationType.TASK_PENDING
+            )
+        notificationPublisher.sendNotification(notification)
+        }
+        return taskMapper.toResponseDTO(task)
     }
 
-    fun deleteTask(id: Long,  currentUser: User) {
+    fun deleteTask(id: Long, currentUser: User) {
         val task = taskRepository.findById(id).orElseThrow {
             EntityNotFoundException("Task Id '$id' not found")
         }

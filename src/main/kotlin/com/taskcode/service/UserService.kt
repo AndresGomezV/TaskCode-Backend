@@ -70,7 +70,7 @@ class UserService(private val userRepository: UserRepository, private val userMa
         }
 
         val role = user.role.name
-        return jwtUtil.generateToken(user.username, role)
+        return jwtUtil.generateToken(user.id!!, user.username, role)
     }
 
     fun updateUserRole(id: Long, newRole: Role, currentUser: User): UserResponseDTO {

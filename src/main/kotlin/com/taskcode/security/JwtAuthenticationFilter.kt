@@ -1,6 +1,5 @@
 package com.taskcode.security
 
-import com.taskcode.repository.UserRepository
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
@@ -17,7 +16,6 @@ import java.io.IOException
 @Component
 class JwtAuthenticationFilter(
     private val jwtUtil: JwtUtil,
-    private val userRepository: UserRepository,
     private val userDetailsService: UserDetailsService
 
 ) : OncePerRequestFilter() {
