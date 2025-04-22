@@ -84,6 +84,18 @@ class TaskService(
 
         task.status = newStatus
         val updatedTask = taskRepository.save(task)
+
+        notificationPublisher.sendNotification(NotificationDTO(
+            userId = task.user?.id!!,
+            senderUsername = currentUser.username,
+            taskId = task.id!!,
+            taskTitle = task.title,
+            notificationType = when (newStatus) {
+                TaskStatus.ACCEPTED -> NotificationType.TASK_ACCEPTED
+                TaskStatus.REJECTED -> NotificationType.TASK_REJECTED
+                else -> NotificationType.TASK_PENDING
+            }
+        ))
         return taskMapper.toResponseDTO(updatedTask)
 
     }
