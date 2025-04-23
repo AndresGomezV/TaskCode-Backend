@@ -12,7 +12,7 @@ class NotificationPublisher(private val jmsTemplate: JmsTemplate) {
 
     fun sendNotification(notification: NotificationDTO) {
         val json = objectMapper.writeValueAsString(notification)
-        println("📤 Enviando notificación a ActiveMQ: $notification")
+        println("Sending notification to ActiveMQ: $notification")
         jmsTemplate.convertAndSend("notification-queue", json)
     }
 }
